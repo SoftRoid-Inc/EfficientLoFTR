@@ -173,6 +173,7 @@ class CoarseMatching(nn.Module):
         b_ids, i_ids = torch.where(mask_v)
         j_ids = all_j_ids[b_ids, i_ids]
         mconf = conf_matrix[b_ids, i_ids, j_ids]
+        
 
         # 4. Random sampling of training samples for fine-level LoFTR
         # (optional) pad samples with gt coarse-level matches
@@ -220,8 +221,9 @@ class CoarseMatching(nn.Module):
         # 4. Update with matches in original image resolution
         scale = data['hw0_i'][0] / data['hw0_c'][0]
 
-        scale0 = scale * data['scale0'][b_ids] if 'scale0' in data else scale
-        scale1 = scale * data['scale1'][b_ids] if 'scale1' in data else scale
+        # TODO why?
+        scale0 = scale * data['scale0'][b_ids][:, [1,0]] if 'scale0' in data else scale
+        scale1 = scale * data['scale1'][b_ids][:, [1,0]] if 'scale1' in data else scale
         mkpts0_c = torch.stack(
             [i_ids % data['hw0_c'][1], i_ids // data['hw0_c'][1]],
             dim=1) * scale0
